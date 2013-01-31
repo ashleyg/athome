@@ -1,4 +1,4 @@
-logs = "/home/pi/athome/logs/" #The directory to place logs in
+logs = "./logs/" #The directory to place logs in
 arpscan = `arp-scan -lq`
 
 #Bring in a list of users that we interested in
