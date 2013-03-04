@@ -1,3 +1,4 @@
+logs = "/home/pi/athome/logs/" #The directory to place logs in
 arpscan = `arp-scan -lq`
 
 #Bring in a list of users that we interested in
@@ -41,3 +42,9 @@ end.compact.join(',')
 
 puts "People Home"
 puts namesPresent
+
+#Output the state to the log directory
+file = File.open(logs+Time.now.to_s,"w")
+namesPresent.each do |name|
+    file.write(name+"\n")
+end
