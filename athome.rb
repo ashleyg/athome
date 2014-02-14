@@ -1,7 +1,9 @@
+require 'json'
+
 logs = "./logs/" #The directory to place logs in
-arpscan = `arp-scan -lq`
 
 #Bring in a list of users that we interested in
+puts "Loading Users"
 userList = File.read('users.txt')
 names = []
 macs  = []
@@ -9,12 +11,19 @@ userList.split("\n").map do |line|
     exploded = line.split(' ')
     names << exploded[0]
     macs << exploded[1] 
+
+    puts "User: "+exploded[0]+" Mac: "+exploded[1]
 end
 
+puts "\n\n"
+
+puts "Running Scan"
+arpscan = `sudo arp-scan -lq`
 #Store the names that we detect are present
 namesPresent = []
 macs =
 arpscan.split("\n").map do |line|
+    puts line
     if line =~ /([0-9A-F][0-9A-F :]{16})/i
         ipmacpair =  line.split(' ')
         #If the mac is in listed in the file of known macs
@@ -39,12 +48,25 @@ arpscan.split("\n").map do |line|
         end
     end
 end.compact.join(',')
+puts "\n\n"
 
 puts "People Home"
 puts namesPresent
+puts "\n\n"
 
-#Output the state to the log directory
-file = File.open(logs+Time.now.to_s,"w")
-namesPresent.each do |name|
-    file.write(name+"\n")
+# Prep the json string
+resultsHash = {}
+names.each do |name|
+    tmpHash = {}
+    if namesPresent.include? name
+        tmpHash['present'] = true
+        resultsHash[name] = tmpHash
+    end
+end
+puts "Results Hash"
+puts resultsHash
+
+file_name = Time.now.to_s
+File.open("logs/"+file_name,'w') do |f|
+    f.write(resultsHash.to_json)
 end
